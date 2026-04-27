@@ -1,0 +1,103 @@
+/* Limpeza de margens padrão */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: sans-serif;
+}
+
+body {
+  background-color: #f4f7f6;
+  color: #333;
+}
+
+.layout-principal {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.header h1 {
+  color: #0f62fe; /* Azul da IBM */
+}
+
+/* Utilizando CSS Grid para dividir o layout */
+.grid-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* Duas colunas de tamanhos iguais */
+  gap: 30px;
+  align-items: start;
+}
+
+.painel-entrada,
+.painel-resultado {
+  background: white;
+  padding: 24px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+/* Grid interno para o formulário */
+.form-grid {
+  display: grid;
+  gap: 20px;
+}
+
+.campo {
+  display: grid;
+  gap: 8px; /* Espaço entre a label e o textarea */
+}
+
+textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  resize: vertical;
+}
+
+.btn-analisar {
+  background-color: #0f62fe;
+  color: white;
+  padding: 14px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 16px;
+  transition: background 0.3s;
+}
+
+.btn-analisar:hover:not(:disabled) {
+  background-color: #0353e9;
+}
+
+.btn-analisar:disabled {
+  background-color: #a6c8ff;
+  cursor: not-allowed;
+}
+
+.resultado-caixa {
+  background: #f4f7f6;
+  padding: 20px;
+  border-radius: 4px;
+  border-left: 4px solid #0f62fe;
+  min-height: 310px;
+}
+
+pre {
+  white-space: pre-wrap;
+  font-family: monospace;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.texto-vazio {
+  color: #888;
+  font-style: italic;
+}
