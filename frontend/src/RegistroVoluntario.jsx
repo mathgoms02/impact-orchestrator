@@ -13,45 +13,68 @@ function RegistroVoluntario() {
     e.preventDefault();
     try {
       await axios.post("http://127.0.0.1:8000/api/voluntarios/", dados);
-      alert("Perfil atualizado!");
+      alert("Perfil profissional atualizado!");
     } catch (error) {
       console.error(error);
     }
   };
 
   return (
-    <div className="form-container">
-      <h2>Completar Perfil Profissional</h2>
-      <form onSubmit={handleSubmit} className="formulario-grid">
-        <input
-          type="text"
-          placeholder="Nome Completo"
-          required
-          onChange={(e) => setDados({ ...dados, nome: e.target.value })}
-        />
-        <input
-          type="email"
-          placeholder="E-mail de Contato"
-          required
-          onChange={(e) => setDados({ ...dados, email: e.target.value })}
-        />
-        <textarea
-          className="grid-span-2"
-          placeholder="Descreva suas Habilidades (Tecnologia, Logística...)"
-          required
-          onChange={(e) => setDados({ ...dados, habilidades: e.target.value })}
-        />
-        <input
-          className="grid-span-2"
-          type="text"
-          placeholder="Disponibilidade de Horário"
-          required
-          onChange={(e) =>
-            setDados({ ...dados, disponibilidade: e.target.value })
-          }
-        />
-        <button type="submit" className="btn-submit grid-span-2">
-          Salvar Perfil
+    <div className="card">
+      <div className="card-header">
+        <h2>Seu Perfil de Voluntariado</h2>
+        <p>
+          Mantenha suas habilidades atualizadas para precisão na orquestração.
+        </p>
+      </div>
+
+      <form onSubmit={handleSubmit} className="form-grid">
+        <div className="input-group">
+          <label>Nome Completo</label>
+          <input
+            type="text"
+            placeholder="Como deseja ser chamado"
+            required
+            onChange={(e) => setDados({ ...dados, nome: e.target.value })}
+          />
+        </div>
+
+        <div className="input-group">
+          <label>E-mail de Contato</label>
+          <input
+            type="email"
+            placeholder="seu@email.com"
+            required
+            onChange={(e) => setDados({ ...dados, email: e.target.value })}
+          />
+        </div>
+
+        <div className="input-group span-2">
+          <label>Habilidades Técnicas e Práticas</label>
+          <textarea
+            rows="3"
+            placeholder="Ex: Programação, Logística, Enfermagem, Motorista..."
+            required
+            onChange={(e) =>
+              setDados({ ...dados, habilidades: e.target.value })
+            }
+          />
+        </div>
+
+        <div className="input-group span-2">
+          <label>Disponibilidade de Tempo</label>
+          <input
+            type="text"
+            placeholder="Ex: Finais de semana, Horário comercial..."
+            required
+            onChange={(e) =>
+              setDados({ ...dados, disponibilidade: e.target.value })
+            }
+          />
+        </div>
+
+        <button type="submit" className="btn btn-primary span-2">
+          Salvar Informações
         </button>
       </form>
     </div>

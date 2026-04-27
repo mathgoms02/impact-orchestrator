@@ -81,7 +81,8 @@ def chamar_agente_watsonx(deployment_id, prompt_text):
         return response.json()['choices'][0]['message']['content']
         
     except requests.exceptions.HTTPError as err:
-        # Pega a mensagem de erro detalhada da IBM (ex: API key inválida)
+        if err.response.status_code == 429:
+            return "Aviso: Nossos servidores de IA estão com alta demanda no momento. Por favor, tente novamente em alguns instantes."
         return f"Erro na API da IBM: {err.response.text}"
     except Exception as e:
         return f"Erro interno na conexão com a IA: {str(e)}"

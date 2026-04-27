@@ -24,6 +24,7 @@ response = requests.post(url_token, data=data_token)
 if response.status_code == 200:
     print("\n✅ SUCESSO! A chave funciona!")
     print("Token gerado:", response.json()["access_token"][:20], "...")
+    print("Response: ", response.json())
 else:
     print("\n❌ ERRO! A IBM recusou ESTA string exata.")
     print("Detalhes:", response.json())

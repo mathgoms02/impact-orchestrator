@@ -1,103 +1,192 @@
-/* Limpeza de margens padrão */
+/* --- RESET E VARIÁVEIS --- */
 * {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
-  font-family: sans-serif;
+  font-family: "Poppins", Roboto, Helvetica, Arial, sans-serif;
 }
-
 body {
   background-color: #f4f7f6;
-  color: #333;
-}
-
-.layout-principal {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 20px;
-}
-
-.header {
-  text-align: center;
-  margin-bottom: 40px;
-}
-
-.header h1 {
-  color: #0f62fe; /* Azul da IBM */
-}
-
-/* Utilizando CSS Grid para dividir o layout */
-.grid-container {
-  display: grid;
-  grid-template-columns: 1fr 1fr; /* Duas colunas de tamanhos iguais */
-  gap: 30px;
-  align-items: start;
-}
-
-.painel-entrada,
-.painel-resultado {
-  background: white;
-  padding: 24px;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-}
-
-/* Grid interno para o formulário */
-.form-grid {
-  display: grid;
-  gap: 20px;
-}
-
-.campo {
-  display: grid;
-  gap: 8px; /* Espaço entre a label e o textarea */
-}
-
-textarea {
-  width: 100%;
-  padding: 12px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  resize: vertical;
-}
-
-.btn-analisar {
-  background-color: #0f62fe;
-  color: white;
-  padding: 14px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-weight: bold;
-  font-size: 16px;
-  transition: background 0.3s;
-}
-
-.btn-analisar:hover:not(:disabled) {
-  background-color: #0353e9;
-}
-
-.btn-analisar:disabled {
-  background-color: #a6c8ff;
-  cursor: not-allowed;
-}
-
-.resultado-caixa {
-  background: #f4f7f6;
-  padding: 20px;
-  border-radius: 4px;
-  border-left: 4px solid #0f62fe;
-  min-height: 310px;
-}
-
-pre {
-  white-space: pre-wrap;
-  font-family: monospace;
-  font-size: 15px;
+  color: #161616;
   line-height: 1.5;
 }
 
-.texto-vazio {
-  color: #888;
-  font-style: italic;
+/* --- LAYOUTS PRINCIPAIS (CSS GRID) --- */
+.auth-container {
+  width: 100%;
+  display: grid;
+  place-items: center;
+  min-height: 100vh;
+  padding: 20px;
+}
+
+.app-wrapper {
+  display: grid;
+  grid-template-rows: auto 1fr; /* Navbar no topo, resto do conteúdo embaixo */
+  min-height: 100vh;
+}
+
+.nav-bar {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  background-color: #ffffff;
+  padding: 16px 32px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.main-content {
+  display: grid;
+  align-content: start; /* Empurra o conteúdo pra cima */
+  gap: 24px;
+  padding: 32px;
+  max-width: 1000px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* --- CARTÕES (CARDS) --- */
+.card {
+  background: #ffffff;
+  padding: 32px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  width: 100%;
+}
+
+.logo {
+  width: 100%;
+}
+
+.logo img {
+  width: 100px;
+  height: 100px;
+}
+
+.card-auth {
+  max-width: 450px;
+}
+.card-header {
+  margin-bottom: 24px;
+}
+.card-header h2 {
+  font-size: 24px;
+  color: #161616;
+  margin-bottom: 4px;
+}
+.card-header p {
+  color: #525252;
+  font-size: 14px;
+}
+
+/* --- FORMULÁRIOS (CSS GRID) --- */
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* Duas colunas sempre */
+  gap: 16px;
+}
+
+.span-2 {
+  grid-column: span 2;
+} /* Faz o elemento ocupar as duas colunas */
+
+.input-group {
+  display: grid;
+  gap: 6px;
+}
+
+label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #393939;
+}
+
+input,
+textarea,
+select {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid #c6c6c6;
+  border-radius: 4px;
+  font-size: 14px;
+  background-color: #ffffff;
+  transition: border-color 0.2s;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  border-color: #0f62fe;
+}
+
+/* --- BOTÕES --- */
+.btn {
+  display: grid;
+  place-items: center;
+  padding: 14px 24px;
+  border: none;
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-primary {
+  background-color: #0f62fe;
+  color: #ffffff;
+}
+.btn-primary:hover {
+  background-color: #0353e9;
+}
+
+.btn-danger {
+  background-color: #da1e28;
+  color: #ffffff;
+}
+.btn-danger:hover {
+  background-color: #a2191f;
+}
+
+.btn-outline {
+  background-color: transparent;
+  border: 1px solid #393939;
+  color: #393939;
+  padding: 8px 16px;
+}
+.btn-outline:hover {
+  background-color: #e5e5e5;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* --- LINKS E TEXTOS --- */
+.text-link {
+  color: #0f62fe;
+  font-size: 14px;
+  cursor: pointer;
+  justify-self: center; /* Centraliza o link no grid */
+  margin-top: 8px;
+  font-weight: 500;
+}
+.text-link:hover {
+  text-decoration: underline;
+}
+
+.tag-perfil {
+  background-color: #e5f0ff;
+  color: #0f62fe;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: bold;
+}
+.tag-ong {
+  background-color: #fff1f1;
+  color: #da1e28;
 }
