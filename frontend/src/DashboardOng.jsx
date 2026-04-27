@@ -4,6 +4,7 @@ import axios from "axios";
 function DashboardOng() {
   const [dados, setDados] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [loadingNotificacao, setLoadingNotificacao] = useState(null); // Controla qual botão está carregando
 
   const buscarMatches = async () => {
     setLoading(true);
@@ -16,6 +17,28 @@ function DashboardOng() {
       alert("Erro ao buscar inteligência artificial.");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const acionarVoluntario = async (match, index) => {
+    setLoadingNotificacao(index);
+    try {
+      const response = await axios.post(
+        "http://127.0.0.1:8000/api/notificar-voluntario/",
+        {
+          nome: match.nome,
+          crise: dados.crise,
+          justificativa: match.justificativa_ia,
+        },
+      );
+      // Para o vídeo, um alert limpo simulando o envio da mensagem gerada pela IA
+      alert(
+        `Mensagem gerada e enviada via IA:\n\n"${response.data.mensagem_gerada}"`,
+      );
+    } catch (error) {
+      alert("Erro ao gerar comunicação.");
+    } finally {
+      setLoadingNotificacao(null);
     }
   };
 
@@ -78,8 +101,12 @@ function DashboardOng() {
                   padding: "6px 12px",
                   fontSize: "12px",
                 }}
+                onClick={() => acionarVoluntario(match, index)}
+                disabled={loadingNotificacao === index}
               >
-                Acionar Voluntário (Agente)
+                {loadingNotificacao === index
+                  ? "Gerando Comunicação..."
+                  : "Acionar Voluntário (Agente de IA)"}
               </button>
             </div>
           ))}

@@ -4,6 +4,7 @@ from .views import (
     AnalisarMatchView, NotificarAgenteView, 
     VoluntarioListCreate, CriseListCreate,
     MatchParaOngView, MatchParaVoluntarioView,
+    NotificarVoluntarioView, ConfirmarDisponibilidadeView
 )
 
 urlpatterns = [
@@ -15,4 +16,6 @@ urlpatterns = [
     path('notificar/', NotificarAgenteView.as_view(), name='notificar'),
     path('matches-ong/', MatchParaOngView.as_view(), name='matches-ong'),
     path('matches-voluntario/', MatchParaVoluntarioView.as_view(), name='matches-voluntario'),
+    path('notificar-voluntario/', NotificarVoluntarioView.as_view(), name='notificar-voluntario'),
+    path('confirmar-presenca/', ConfirmarDisponibilidadeView.as_view(), name='confirmar-presenca'),
 ]
