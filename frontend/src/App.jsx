@@ -3,7 +3,8 @@ import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import RegistroVoluntario from "./RegistroVoluntario";
 import RegistroCrise from "./RegistroCrise";
-import "./GridForms.css";
+import "./App.css";
+import logo from "./assets/logo.png";
 
 const API_URL = "http://127.0.0.1:8000/api";
 
@@ -43,7 +44,7 @@ function App() {
     e.preventDefault();
     try {
       await axios.post(`${API_URL}/cadastro/`, formData);
-      alert("Conta criada! Faça login.");
+      alert("Conta criada! Faça login para continuar.");
       setModoCadastro(false);
     } catch (error) {
       alert("Erro ao cadastrar.");
@@ -55,109 +56,137 @@ function App() {
     setUser(null);
   };
 
+  // TELA DE AUTENTICAÇÃO
   if (!user) {
     return (
-      <div
-        className="form-container"
-        style={{ maxWidth: "400px", margin: "50px auto" }}
-      >
-        <h2>{modoCadastro ? "Criar Conta" : "Entrar"}</h2>
-        <form
-          onSubmit={modoCadastro ? fazerCadastro : fazerLogin}
-          className="formulario-grid"
-        >
-          <input
-            className="grid-span-2"
-            type="text"
-            name="username"
-            placeholder="Usuário"
-            required
-            onChange={handleChange}
-          />
-          {modoCadastro && (
-            <>
+      <div className="auth-container">
+        <div className="card card-auth">
+          <div className="logo">
+            <img src={logo} alt="" />
+          </div>
+          <div className="card-header">
+            <h2>{modoCadastro ? "Criar Nova Conta" : "Impact Orchestrator"}</h2>
+            <p>
+              {modoCadastro
+                ? "Junte-se à rede de impacto social com Impact Orchestrator."
+                : "Insira suas credenciais para continuar."}
+            </p>
+          </div>
+
+          <form
+            onSubmit={modoCadastro ? fazerCadastro : fazerLogin}
+            className="form-grid"
+          >
+            <div className="input-group span-2">
+              <label>Nome de Usuário</label>
               <input
-                className="grid-span-2"
-                type="email"
-                name="email"
-                placeholder="E-mail"
+                type="text"
+                name="username"
+                placeholder="Digite seu username..."
                 required
                 onChange={handleChange}
               />
-              <select
-                className="grid-span-2"
-                name="tipo"
-                value={formData.tipo}
+            </div>
+
+            {modoCadastro && (
+              <>
+                <div className="input-group span-2">
+                  <label>E-mail</label>
+                  <input
+                    type="email"
+                    name="email"
+                    placeholder="Digite seu e-mail..."
+                    required
+                    onChange={handleChange}
+                  />
+                </div>
+                <div className="input-group span-2">
+                  <label>Tipo de Perfil</label>
+                  <select
+                    name="tipo"
+                    value={formData.tipo}
+                    onChange={handleChange}
+                  >
+                    <option value="VOLUNTARIO">Sou Voluntário</option>
+                    <option value="ONG">Sou Instituição / ONG</option>
+                  </select>
+                </div>
+              </>
+            )}
+
+            <div className="input-group span-2">
+              <label>Senha</label>
+              <input
+                type="password"
+                name="password"
+                placeholder="Digite sua senha..."
+                required
                 onChange={handleChange}
-                style={{ padding: "12px" }}
-              >
-                <option value="VOLUNTARIO">Voluntário</option>
-                <option value="ONG">Instituição</option>
-              </select>
-            </>
-          )}
-          <input
-            className="grid-span-2"
-            type="password"
-            name="password"
-            placeholder="Senha"
-            required
-            onChange={handleChange}
-          />
-          <button className="btn-submit grid-span-2" type="submit">
-            {modoCadastro ? "Cadastrar" : "Entrar"}
-          </button>
-        </form>
-        <p
-          style={{ marginTop: "15px", color: "#0f62fe", cursor: "pointer" }}
-          onClick={() => setModoCadastro(!modoCadastro)}
-        >
-          {modoCadastro ? "Já tem conta? Entrar" : "Novo por aqui? Cadastre-se"}
-        </p>
+              />
+            </div>
+
+            <button className="btn btn-primary span-2" type="submit">
+              {modoCadastro ? "Finalizar Cadastro" : "Entrar na Plataforma"}
+            </button>
+
+            <span
+              className="text-link span-2"
+              onClick={() => setModoCadastro(!modoCadastro)}
+            >
+              {modoCadastro
+                ? "Já tem conta? Entrar agora"
+                : "Novo por aqui? Cadastre-se"}
+            </span>
+          </form>
+        </div>
       </div>
     );
   }
 
+  // TELA LOGADA
   return (
-    <div style={{ maxWidth: "1000px", margin: "20px auto", padding: "20px" }}>
-      <header
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          background: "#fff",
-          padding: "15px",
-          borderRadius: "8px",
-          marginBottom: "20px",
-        }}
-      >
+    <div className="app-wrapper">
+      <nav className="nav-bar">
         <div>
-          <h2 style={{ margin: 0 }}>Olá, {user.username}</h2>
-          <span style={{ color: "#da1e28" }}>Perfil: {user.tipo}</span>
+          <strong style={{ fontSize: "18px", marginRight: "12px" }}>
+            Impact Orchestrator | {user.username}
+          </strong>
+          <span
+            className={
+              user.tipo === "ONG" ? "tag-perfil tag-ong" : "tag-perfil"
+            }
+          >
+            {user.tipo === "ONG" ? "Instituição" : "Voluntário"}
+          </span>
         </div>
-        <button
-          onClick={sair}
-          className="btn-submit"
-          style={{ background: "#393939" }}
-        >
+        <button onClick={sair} className="btn btn-outline">
           Sair
         </button>
-      </header>
+      </nav>
 
-      {user.tipo === "VOLUNTARIO" ? (
-        <>
-          <RegistroVoluntario />
-          <div className="form-container">
-            <h3>Em breve: Mural de Crises para você ajudar</h3>
-          </div>
-        </>
-      ) : (
-        <>
-          <RegistroCrise />
-          <div className="form-container">
-            <h3>Em breve: Dashboard de Matches e IA</h3>
-          </div>
-        </>
-      )}
+      <main className="main-content">
+        {user.tipo === "VOLUNTARIO" ? (
+          <>
+            <RegistroVoluntario />
+            <div className="card">
+              <div className="card-header">
+                <h2>Emergências Ativas</h2>
+                <p>Nenhuma crise demandando o seu perfil no momento.</p>
+              </div>
+            </div>
+          </>
+        ) : (
+          <>
+            <RegistroCrise />
+            <div className="card">
+              <div className="card-header">
+                <h2>Inteligência de Matches (watsonx)</h2>
+                <p>O resultado do processamento da IA aparecerá aqui.</p>
+              </div>
+            </div>
+          </>
+        )}
+      </main>
     </div>
   );
 }

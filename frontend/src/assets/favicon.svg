@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" width="500" height="500">
+  <defs>
+    <linearGradient id="grad_heart" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ff9a44" />
+      <stop offset="100%" stop-color="#fc6076" />
+    </linearGradient>
+    <linearGradient id="grad_blue" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00a8ff" />
+      <stop offset="100%" stop-color="#0052cc" />
+    </linearGradient>
+    <linearGradient id="grad_green" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00e676" />
+      <stop offset="100%" stop-color="#00897b" />
+    </linearGradient>
+  </defs>
+
+  <rect width="500" height="500" fill="#ffffff00" />
+  
+  <path d="M 250 50 A 200 200 0 0 0 50 250" fill="none" stroke="#0077c8" stroke-width="8" stroke-linecap="round" />
+  <path d="M 250 50 A 200 200 0 0 1 450 250" fill="none" stroke="#00b18f" stroke-width="8" stroke-linecap="round" />
+
+  <path d="M 250 400 C 250 400 120 320 160 260 C 180 230 220 230 250 270 C 280 230 320 230 340 260 C 380 320 250 400 250 400 Z" fill="url(#grad_heart)" />
+  
+  <circle cx="140" cy="220" r="25" fill="#0077c8" />
+  <path d="M 50 250 C 70 350 150 400 250 430 C 200 400 150 350 120 300 C 150 280 180 250 200 230 C 160 240 100 240 50 250 Z" fill="url(#grad_blue)" />
+
+  <circle cx="360" cy="220" r="25" fill="#00b18f" />
+  <path d="M 450 250 C 430 350 350 400 250 430 C 300 400 350 350 380 300 C 350 280 320 250 300 230 C 340 240 400 240 450 250 Z" fill="url(#grad_green)" />
+
+  <path d="M 100 420 C 150 480 350 480 400 420 C 350 460 200 460 150 400 C 180 420 220 440 300 410 C 250 440 150 430 100 420 Z" fill="#0a3d6e" />
+
+  <circle cx="250" cy="150" r="30" fill="#0a3d6e" />
+  
+  <line x1="250" y1="120" x2="250" y2="70" stroke="#0077c8" stroke-width="6" />
+  <line x1="220" y1="140" x2="160" y2="110" stroke="#0077c8" stroke-width="6" />
+  <line x1="280" y1="140" x2="340" y2="110" stroke="#00b18f" stroke-width="6" />
+  <line x1="220" y1="170" x2="170" y2="200" stroke="#0077c8" stroke-width="6" />
+  <line x1="280" y1="170" x2="330" y2="200" stroke="#00b18f" stroke-width="6" />
+  
+  <circle cx="250" cy="60" r="15" fill="#ffffff" stroke="#0077c8" stroke-width="6" />
+  <circle cx="150" cy="100" r="15" fill="#ffffff" stroke="#0077c8" stroke-width="6" />
+  <circle cx="350" cy="100" r="15" fill="#ffffff" stroke="#00b18f" stroke-width="6" />
+  <circle cx="160" cy="210" r="15" fill="#ffffff" stroke="#0077c8" stroke-width="6" />
+  <circle cx="340" cy="210" r="15" fill="#ffffff" stroke="#00b18f" stroke-width="6" />
+  
+  <circle cx="50" cy="250" r="15" fill="#ffffff" stroke="#0077c8" stroke-width="6" />
+  <circle cx="450" cy="250" r="15" fill="#ffffff" stroke="#00b18f" stroke-width="6" />
+</svg>
