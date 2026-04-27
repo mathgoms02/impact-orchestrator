@@ -4,6 +4,7 @@ import axios from "axios";
 function DashboardVoluntario() {
   const [dados, setDados] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [loadingConfirmacao, setLoadingConfirmacao] = useState(null);
 
   const buscarOportunidades = async () => {
     setLoading(true);
@@ -16,6 +17,27 @@ function DashboardVoluntario() {
       alert("Erro ao conectar com a IA.");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const confirmarPresenca = async (match, index) => {
+    setLoadingConfirmacao(index);
+    try {
+      const response = await axios.post(
+        "http://127.0.0.1:8000/api/confirmar-presenca/",
+        {
+          nome: dados.voluntario,
+          crise: match.titulo_crise,
+          como_ajudar: match.como_ajudar,
+        },
+      );
+      alert(
+        `Alerta gerado pela IA para o painel da ONG:\n\n"${response.data.mensagem_gerada}"`,
+      );
+    } catch (error) {
+      alert("Erro ao confirmar presença.");
+    } finally {
+      setLoadingConfirmacao(null);
     }
   };
 
@@ -85,8 +107,12 @@ function DashboardVoluntario() {
                   padding: "6px 12px",
                   fontSize: "12px",
                 }}
+                onClick={() => confirmarPresenca(match, index)}
+                disabled={loadingConfirmacao === index}
               >
-                Confirmar Disponibilidade
+                {loadingConfirmacao === index
+                  ? "Avisando Orquestrador..."
+                  : "Confirmar Disponibilidade"}
               </button>
             </div>
           ))}

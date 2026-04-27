@@ -172,3 +172,53 @@ class MatchParaVoluntarioView(APIView):
             return Response({"voluntario": voluntario_atual.nome, "matches": json.loads(response.text)})
         except Exception as e:
             return Response({"erro": str(e)}, status=500)
+
+class NotificarVoluntarioView(APIView):
+    def post(self, request):
+        nome_voluntario = request.data.get('nome')
+        crise = request.data.get('crise')
+        justificativa = request.data.get('justificativa')
+
+        # Prompt focado na comunicação ONG -> Voluntário
+        prompt = f"""
+        Você é o Orquestrador de Comunicação da plataforma.
+        A ONG acabou de selecionar o voluntário {nome_voluntario} para a emergência: "{crise}".
+        O motivo da escolha foi: {justificativa}.
+        
+        Redija uma mensagem curta (estilo WhatsApp), urgente, empática e muito profissional para avisar o voluntário que precisamos dele. Não mencione pagamentos.
+        """
+
+        try:
+            client = genai.Client(api_key=os.getenv('GEMINI_API_KEY'))
+            response = client.models.generate_content(
+                model='gemini-2.5-flash',
+                contents=prompt
+            )
+            return Response({"mensagem_gerada": response.text})
+        except Exception as e:
+            return Response({"erro": str(e)}, status=500)
+
+class ConfirmarDisponibilidadeView(APIView):
+    def post(self, request):
+        nome_voluntario = request.data.get('nome')
+        crise = request.data.get('crise')
+        como_ajudar = request.data.get('como_ajudar')
+
+        # Prompt focado na comunicação Voluntário -> ONG
+        prompt = f"""
+        Você é o Orquestrador de Comunicação da plataforma.
+        O voluntário {nome_voluntario} acabou de confirmar que está a caminho para ajudar na emergência: "{crise}".
+        Ele vai atuar fazendo o seguinte: {como_ajudar}.
+        
+        Redija um alerta muito curto e objetivo (estilo notificação de sistema operacional) para o Coordenador da ONG, avisando que o voluntário confirmou presença e o que ele fará.
+        """
+
+        try:
+            client = genai.Client(api_key=os.getenv('GEMINI_API_KEY'))
+            response = client.models.generate_content(
+                model='gemini-2.5-flash',
+                contents=prompt
+            )
+            return Response({"mensagem_gerada": response.text})
+        except Exception as e:
+            return Response({"erro": str(e)}, status=500)
