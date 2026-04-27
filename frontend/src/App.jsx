@@ -5,6 +5,8 @@ import RegistroVoluntario from "./RegistroVoluntario";
 import RegistroCrise from "./RegistroCrise";
 import "./App.css";
 import logo from "./assets/logo.png";
+import DashboardOng from "./DashboardOng";
+import DashboardVoluntario from "./DashboardVoluntario";
 
 const API_URL = "http://127.0.0.1:8000/api";
 
@@ -168,22 +170,12 @@ function App() {
         {user.tipo === "VOLUNTARIO" ? (
           <>
             <RegistroVoluntario />
-            <div className="card">
-              <div className="card-header">
-                <h2>Emergências Ativas</h2>
-                <p>Nenhuma crise demandando o seu perfil no momento.</p>
-              </div>
-            </div>
+            <DashboardVoluntario /> {/* <-- Inserido aqui! */}
           </>
         ) : (
           <>
             <RegistroCrise />
-            <div className="card">
-              <div className="card-header">
-                <h2>Inteligência de Matches (watsonx)</h2>
-                <p>O resultado do processamento da IA aparecerá aqui.</p>
-              </div>
-            </div>
+            <DashboardOng /> {/* <-- Inserido aqui! */}
           </>
         )}
       </main>
