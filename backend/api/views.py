@@ -1,5 +1,6 @@
 import os
 import requests
+import json
 from rest_framework import generics, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -8,15 +9,10 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from django.contrib.auth.models import User
 from .models import Perfil, Voluntario, Crise
 from .serializers import VoluntarioSerializer, CriseSerializer
-import json
-from google.genai import types
 from dotenv import load_dotenv
-
-from google import genai
 
 load_dotenv()
 
-# --- AUTENTICAÇÃO E LOGIN ---
 class CustomTokenSerializer(TokenObtainPairSerializer):
     @classmethod
     def get_token(cls, user):
@@ -42,47 +38,44 @@ class RegistroUsuarioView(APIView):
         Perfil.objects.create(user=user, tipo=tipo)
         return Response({"status": "Usuário criado!"}, status=status.HTTP_201_CREATED)
 
-# --- INTEGRAÇÃO WATSONX (NATIVA) ---
 def chamar_agente_watsonx(deployment_id, prompt_text):
+    """Função core que conecta o Django aos Deployments do watsonx Orchestrate via REST API."""
     try:
-        # Inicializa o cliente com a nova estrutura da API
-        client = genai.Client(api_key=os.getenv('GEMINI_API_KEY'))
+        api_key = os.getenv('WATSONX_API_KEY')
+        url_token = 'https://iam.cloud.ibm.com/identity/token'
         
-        # Injeção de contexto baseada no ID do agente (Mantendo a "magia")
-        contexto_adicional = ""
-        if deployment_id == os.getenv('ID_AGENTE_MATCH'):
-            contexto_adicional = "Você é um Analista de Match de Voluntariado. Responda APENAS com a Função Recomendada, Score de Match e Justificativa. "
-        elif deployment_id == os.getenv('ID_AGENTE_CRISE'):
-            contexto_adicional = "Você é um Estruturador de Crises. Extraia as necessidades urgentes deste texto e devolva de forma limpa e direta. "
-        elif deployment_id == os.getenv('ID_AGENTE_COMUNICACAO'):
-            contexto_adicional = "Você é um Orquestrador de Comunicação. Escreva uma mensagem urgente, empática e profissional para convocar o voluntário. "
+        token_data = {
+            "apikey": api_key, 
+            "grant_type": "urn:ibm:params:oauth:grant-type:apikey"
+        }
+        token_res = requests.post(url_token, data=token_data)
+        token_res.raise_for_status() 
+        mltoken = token_res.json()['access_token']
 
-        prompt_final = contexto_adicional + prompt_text
+        url_agente = f'https://us-south.ml.cloud.ibm.com/ml/v4/deployments/{deployment_id}/ai_service?version=2021-05-01'
         
-        # Nova sintaxe de chamada usando o modelo mais recente e rápido
-        response = client.models.generate_content(
-            model='gemini-2.5-flash',
-            contents=prompt_final
-        )
+        payload = {
+            "messages": [
+                {"role": "user", "content": prompt_text}
+            ]
+        }
         
-        return response.text
+        headers_agente = {
+            'Content-Type': 'application/json',
+            'Authorization': f'Bearer {mltoken}'
+        }
         
+        response = requests.post(url_agente, json=payload, headers=headers_agente)
+        response.raise_for_status()
+        
+        return response.json()['choices'][0]['message']['content']
+        
+    except requests.exceptions.HTTPError as err:
+        if err.response.status_code == 429:
+            return "Aviso: Nossos servidores de IA estão com alta demanda no momento. Por favor, tente novamente em alguns instantes."
+        return f"Erro na API da IBM: {err.response.text}"
     except Exception as e:
-        return f"Erro na IA (Magia do Cinema falhou): {str(e)}"
-
-
-# --- ROTAS DA APLICAÇÃO ---
-class AnalisarMatchView(APIView):
-    def post(self, request):
-        res = chamar_agente_watsonx(os.getenv('ID_AGENTE_MATCH'), 
-                                    f"Analise o match. Crise: {request.data['crise']} / Voluntário: {request.data['voluntario']}")
-        return Response({"match": res})
-
-class NotificarAgenteView(APIView):
-    def post(self, request):
-        res = chamar_agente_watsonx(os.getenv('ID_AGENTE_COMUNICACAO'), 
-                                    f"Notifique {request.data['nome']} sobre a tarefa {request.data['tarefa']} via {request.data['contato']}")
-        return Response({"mensagem": res})
+        return f"Erro interno na conexão com a IA: {str(e)}"
 
 class VoluntarioListCreate(generics.ListCreateAPIView):
     queryset = Voluntario.objects.all()
@@ -94,48 +87,43 @@ class CriseListCreate(generics.ListCreateAPIView):
 
     def perform_create(self, serializer):
         descricao_bruta = self.request.data.get('descricao_bruta')
-        # A IA processa a descrição antes de salvar
-        analise = chamar_agente_watsonx(os.getenv('ID_AGENTE_CRISE'), descricao_bruta)
+        prompt = f"Você é um Estruturador de Crises. Extraia as necessidades urgentes deste texto e devolva de forma limpa: {descricao_bruta}"
+        analise = chamar_agente_watsonx(os.getenv('ID_AGENTE_CRISE'), prompt)
         serializer.save(analise_ia=analise)
-
 
 class MatchParaOngView(APIView):
     def get(self, request):
-        # 1. Pega todas as crises ativas e todos os voluntários
         crises = Crise.objects.filter(ativa=True)
         voluntarios = Voluntario.objects.all()
         
         if not crises.exists() or not voluntarios.exists():
-            return Response({"mensagem": "Faltam dados (crises ou voluntários) para o match."}, status=200)
+            return Response({"mensagem": "Dados insuficientes para calcular match."}, status=200)
 
-        # Vamos usar a última crise registrada para o demo
         crise_atual = crises.last() 
         lista_voluntarios = [{"id": v.id, "nome": v.nome, "habilidades": v.habilidades} for v in voluntarios]
 
         prompt = f"""
-        Você é um Orquestrador de IA. 
-        Temos esta emergência: "{crise_atual.titulo}" - {crise_atual.descricao_bruta}
-        Temos estes voluntários: {lista_voluntarios}
+        Você é um Analista de Match de Voluntariado.
+        Emergência Ativa: "{crise_atual.titulo}" - {crise_atual.descricao_bruta}
+        Voluntários Disponíveis: {lista_voluntarios}
         
-        Analise quem pode ajudar. Retorne uma lista com os melhores matches.
-        A resposta DEVE obedecer exatamente este esquema JSON, sem nenhum outro texto:
+        Avalie o cenário e retorne APENAS um JSON válido (sem textos extras ou crases markdown) com os melhores perfis:
         [
             {{"voluntario_id": 1, "nome": "Nome", "score_match": "95%", "justificativa_ia": "Motivo prático..."}}
         ]
         """
-
+        
+        res_ia = chamar_agente_watsonx(os.getenv('ID_AGENTE_MATCH'), prompt)
+        
+        # Limpeza defensiva do JSON retornado pelo LLM
+        res_ia_limpa = res_ia.replace("```json", "").replace("```", "").strip()
+        
         try:
-            client = genai.Client(api_key=os.getenv('GEMINI_API_KEY'))
-            response = client.models.generate_content(
-                model='gemini-2.5-flash',
-                contents=prompt,
-                config=types.GenerateContentConfig(
-                    response_mime_type="application/json", # Força a IA a cuspir JSON perfeito!
-                ),
-            )
-            return Response({"crise": crise_atual.titulo, "matches": json.loads(response.text)})
-        except Exception as e:
-            return Response({"erro": str(e)}, status=500)
+            matches_json = json.loads(res_ia_limpa)
+        except:
+            matches_json = [{"nome": "Resultado em Texto Bruto (IA)", "score_match": "Processado", "justificativa_ia": res_ia_limpa}]
+
+        return Response({"crise": crise_atual.titulo, "matches": matches_json})
 
 class MatchParaVoluntarioView(APIView):
     def get(self, request):
@@ -143,35 +131,31 @@ class MatchParaVoluntarioView(APIView):
         voluntarios = Voluntario.objects.all()
         
         if not crises.exists() or not voluntarios.exists():
-            return Response({"mensagem": "Faltam dados para o match."}, status=200)
+            return Response({"mensagem": "Dados insuficientes para calcular match."}, status=200)
 
-        # Pega o último voluntário cadastrado para o demo
         voluntario_atual = voluntarios.last()
         lista_crises = [{"id": c.id, "titulo": c.titulo, "necessidade": c.descricao_bruta} for c in crises]
 
         prompt = f"""
-        Você é um Orquestrador de IA.
-        Temos este voluntário: {voluntario_atual.nome} com as habilidades: {voluntario_atual.habilidades} e disponibilidade: {voluntario_atual.disponibilidade}.
-        Temos estas crises ativas: {lista_crises}
+        Você é um Analista de Match de Voluntariado.
+        Perfil do Voluntário: {voluntario_atual.nome} | {voluntario_atual.habilidades} | {voluntario_atual.disponibilidade}
+        Demandas Ativas: {lista_crises}
         
-        Quais crises se encaixam no perfil dele? Retorne uma lista JSON com os melhores matches:
+        Identifique as crises onde ele será mais útil. Retorne APENAS um JSON válido:
         [
-            {{"crise_id": 1, "titulo_crise": "Nome", "score_match": "88%", "como_ajudar": "Instrução prática..."}}
+            {{"crise_id": 1, "titulo_crise": "Título", "score_match": "88%", "como_ajudar": "Instrução..."}}
         ]
         """
-
+        
+        res_ia = chamar_agente_watsonx(os.getenv('ID_AGENTE_MATCH'), prompt)
+        
+        res_ia_limpa = res_ia.replace("```json", "").replace("```", "").strip()
         try:
-            client = genai.Client(api_key=os.getenv('GEMINI_API_KEY'))
-            response = client.models.generate_content(
-                model='gemini-2.5-flash',
-                contents=prompt,
-                config=types.GenerateContentConfig(
-                    response_mime_type="application/json",
-                ),
-            )
-            return Response({"voluntario": voluntario_atual.nome, "matches": json.loads(response.text)})
-        except Exception as e:
-            return Response({"erro": str(e)}, status=500)
+            matches_json = json.loads(res_ia_limpa)
+        except:
+            matches_json = [{"titulo_crise": "Análise Bruta", "score_match": "Processado", "como_ajudar": res_ia_limpa}]
+
+        return Response({"voluntario": voluntario_atual.nome, "matches": matches_json})
 
 class NotificarVoluntarioView(APIView):
     def post(self, request):
@@ -179,24 +163,15 @@ class NotificarVoluntarioView(APIView):
         crise = request.data.get('crise')
         justificativa = request.data.get('justificativa')
 
-        # Prompt focado na comunicação ONG -> Voluntário
         prompt = f"""
-        Você é o Orquestrador de Comunicação da plataforma.
-        A ONG acabou de selecionar o voluntário {nome_voluntario} para a emergência: "{crise}".
-        O motivo da escolha foi: {justificativa}.
-        
-        Redija uma mensagem curta (estilo WhatsApp), urgente, empática e muito profissional para avisar o voluntário que precisamos dele. Não mencione pagamentos.
+        Você é um Orquestrador de Comunicação de Crises.
+        A Defesa Civil convocou o voluntário {nome_voluntario} para atuar em: "{crise}".
+        A justificativa foi: {justificativa}.
+        Redija uma mensagem rápida, empática e urgente (como um SMS) para o celular dele.
         """
-
-        try:
-            client = genai.Client(api_key=os.getenv('GEMINI_API_KEY'))
-            response = client.models.generate_content(
-                model='gemini-2.5-flash',
-                contents=prompt
-            )
-            return Response({"mensagem_gerada": response.text})
-        except Exception as e:
-            return Response({"erro": str(e)}, status=500)
+        
+        res_ia = chamar_agente_watsonx(os.getenv('ID_AGENTE_COMUNICACAO'), prompt)
+        return Response({"mensagem_gerada": res_ia})
 
 class ConfirmarDisponibilidadeView(APIView):
     def post(self, request):
@@ -204,21 +179,12 @@ class ConfirmarDisponibilidadeView(APIView):
         crise = request.data.get('crise')
         como_ajudar = request.data.get('como_ajudar')
 
-        # Prompt focado na comunicação Voluntário -> ONG
         prompt = f"""
-        Você é o Orquestrador de Comunicação da plataforma.
-        O voluntário {nome_voluntario} acabou de confirmar que está a caminho para ajudar na emergência: "{crise}".
-        Ele vai atuar fazendo o seguinte: {como_ajudar}.
-        
-        Redija um alerta muito curto e objetivo (estilo notificação de sistema operacional) para o Coordenador da ONG, avisando que o voluntário confirmou presença e o que ele fará.
+        Você é um Orquestrador de Comunicação. 
+        O voluntário {nome_voluntario} confirmou que vai para o local da emergência: "{crise}".
+        Ação prevista: {como_ajudar}.
+        Escreva um log curto e direto para o painel de comando do Coordenador de Resgate, confirmando este recurso.
         """
-
-        try:
-            client = genai.Client(api_key=os.getenv('GEMINI_API_KEY'))
-            response = client.models.generate_content(
-                model='gemini-2.5-flash',
-                contents=prompt
-            )
-            return Response({"mensagem_gerada": response.text})
-        except Exception as e:
-            return Response({"erro": str(e)}, status=500)
+        
+        res_ia = chamar_agente_watsonx(os.getenv('ID_AGENTE_COMUNICACAO'), prompt)
+        return Response({"mensagem_gerada": res_ia})

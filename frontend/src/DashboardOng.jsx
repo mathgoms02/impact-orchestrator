@@ -4,7 +4,7 @@ import axios from "axios";
 function DashboardOng() {
   const [dados, setDados] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [loadingNotificacao, setLoadingNotificacao] = useState(null); // Controla qual botão está carregando
+  const [loadingNotificacao, setLoadingNotificacao] = useState(null);
 
   const buscarMatches = async () => {
     setLoading(true);
@@ -31,7 +31,6 @@ function DashboardOng() {
           justificativa: match.justificativa_ia,
         },
       );
-      // Para o vídeo, um alert limpo simulando o envio da mensagem gerada pela IA
       alert(
         `Mensagem gerada e enviada via IA:\n\n"${response.data.mensagem_gerada}"`,
       );

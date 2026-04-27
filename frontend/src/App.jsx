@@ -170,12 +170,12 @@ function App() {
         {user.tipo === "VOLUNTARIO" ? (
           <>
             <RegistroVoluntario />
-            <DashboardVoluntario /> {/* <-- Inserido aqui! */}
+            <DashboardVoluntario /> {/*  */}
           </>
         ) : (
           <>
             <RegistroCrise />
-            <DashboardOng /> {/* <-- Inserido aqui! */}
+            <DashboardOng /> {/*  */}
           </>
         )}
       </main>

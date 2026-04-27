@@ -1,4 +1,3 @@
-/* --- RESET E VARIÁVEIS --- */
 * {
   box-sizing: border-box;
   margin: 0;
@@ -11,7 +10,7 @@ body {
   line-height: 1.5;
 }
 
-/* --- LAYOUTS PRINCIPAIS (CSS GRID) --- */
+/* LAYOUTS PRINCIPAIS */
 .auth-container {
   width: 100%;
   display: grid;
@@ -22,7 +21,7 @@ body {
 
 .app-wrapper {
   display: grid;
-  grid-template-rows: auto 1fr; /* Navbar no topo, resto do conteúdo embaixo */
+  grid-template-rows: auto 1fr;
   min-height: 100vh;
 }
 
@@ -38,7 +37,7 @@ body {
 
 .main-content {
   display: grid;
-  align-content: start; /* Empurra o conteúdo pra cima */
+  align-content: start;
   gap: 24px;
   padding: 32px;
   max-width: 1000px;
@@ -46,7 +45,7 @@ body {
   width: 100%;
 }
 
-/* --- CARTÕES (CARDS) --- */
+/* CARTÕES */
 .card {
   background: #ffffff;
   padding: 32px;
@@ -80,7 +79,7 @@ body {
   font-size: 14px;
 }
 
-/* --- FORMULÁRIOS (CSS GRID) --- */
+/* FORMULÁRIOS */
 .form-grid {
   display: grid;
   grid-template-columns: 1fr 1fr; /* Duas colunas sempre */
@@ -89,7 +88,7 @@ body {
 
 .span-2 {
   grid-column: span 2;
-} /* Faz o elemento ocupar as duas colunas */
+}
 
 .input-group {
   display: grid;
@@ -121,7 +120,7 @@ select:focus {
   border-color: #0f62fe;
 }
 
-/* --- BOTÕES --- */
+/* BOTÕES */
 .btn {
   display: grid;
   place-items: center;
@@ -165,12 +164,12 @@ select:focus {
   cursor: not-allowed;
 }
 
-/* --- LINKS E TEXTOS --- */
+/* LINKS E TEXTOS */
 .text-link {
   color: #0f62fe;
   font-size: 14px;
   cursor: pointer;
-  justify-self: center; /* Centraliza o link no grid */
+  justify-self: center;
   margin-top: 8px;
   font-weight: 500;
 }
